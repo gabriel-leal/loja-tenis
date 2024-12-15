@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import json
 from connect import execute_insert, create_connect, execute_query
 import os
+import uuid
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
@@ -51,6 +52,12 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def validate_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except:
+        raise HTTPException(status_code=403, detail="Invalid token")
 
 @app.post("/login")
 async def login(request: Request):
@@ -78,8 +85,8 @@ async def cadastro(request : Request):
     msg = 0
     if len(retorno) == 0:
         query = f"""
-        insert into cadastro (firstName, lastName, email, phone, password)
-        VALUES("{data['firstName']}","{data['lastName']}","{data['email']}","{data['phone']}","{data['password']}")
+        insert into cadastro (id, firstName, lastName, email, phone, password)
+        VALUES("{uuid.uuid4()}","{data['firstName']}","{data['lastName']}","{data['email']}","{data['phone']}","{data['password']}")
         """
         execute_insert(conn, query)
     else:
@@ -89,3 +96,27 @@ async def cadastro(request : Request):
     conn.close()
             
     return msg
+
+@app.get('/users')
+async def getUsers(request: Request):
+    token = request.headers.get("Authorization")
+    if not token:
+        raise HTTPException(status_code=401, detail="Token not provided")
+    
+    token = token.replace("Bearer ", "") if "Bearer " in token else token
+    
+    if not validate_token(token):
+        raise HTTPException(status_code=403, detail="Invalid token")
+    
+    dataBase = r'./BDloja.DB'
+    conn = create_connect(dataBase)
+    query = f"""
+    select *
+    from cadastro
+    """
+    users = execute_query(conn, query)
+    json = {
+        "size": len(users),
+        "content": users
+    }
+    return json
