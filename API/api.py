@@ -9,7 +9,7 @@ import uuid
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 3
 
 origins = [
     "http://localhost:4200",
