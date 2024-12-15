@@ -25,30 +25,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# users_db = {
-#     "username": "user@example.com",
-#     "password": "password123"
-# }
-
-# def authenticate_user(username: str, password: str):
-#     user = users_db["username"]
-#     if not user or users_db["password"] != password:
-#         return None
-#     if users_db["username"] != username:
-#         return None
-#     return user
-
-def findUserDB(username: str, password: str):
-    dataBase = r'./BDmarcos.DB'
+def findUserDB(email: str, password: str):
+    dataBase = r'./BDloja.DB'
     conn = create_connect(dataBase)
     query = f"""
     select 1
     from cadastro
-    where email = "{username}" AND password = "{password}"
+    where email = "{email}" AND password = "{password}"
     """
     retorno = execute_query(conn, query)
     if len(retorno) > 0:
-        return username
+        return email
     else:
         return None
 
@@ -70,17 +57,17 @@ async def login(request: Request):
     retorno = await request.body()
     retorno = retorno.decode()
     data = json.loads(retorno)
-    user = findUserDB(data['username'], data['password'])
+    user = findUserDB(data['email'], data['password'])
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     access_token = create_access_token(data={"sub": user})
     return {"access_token": access_token, "token_type": "bearer", "expire_in_sec": ACCESS_TOKEN_EXPIRE_MINUTES * 60}
 
-@app.post("/cadastro")
+@app.post("/sign")
 async def cadastro(request : Request):
     data = await request.json()
-    dataBase = r'./BDmarcos.DB'
+    dataBase = r'./BDloja.DB'
     conn = create_connect(dataBase)
     query = f"""
     select email
