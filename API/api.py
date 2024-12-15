@@ -111,24 +111,45 @@ async def getUsers(request: Request):
     dataBase = r'./BDloja.DB'
     conn = create_connect(dataBase)
     query = f"""
-    select *
+    select id, firstName, lastName, email, phone 
     from cadastro
     """
     users = execute_query(conn, query)
-    # "size": len(users),
-    # "content": {"nome": user[1]}
     content = []
     for user in users:
-        content.append(
-            {
-                "id": user[0],
-                "nome": user[1] + ' ' + user[2],
-                "email": user[3],
-                "phone": user[4]
-            }
-        )
-    json = {
-        "size": len(users),
-        "content": content
-        }
+        content.append({"id": user[0],"nome": user[1] + ' ' + user[2],"email": user[3],   "phone": user[4]})
+    json = {"size": len(users),"content": content}
+    
+    conn.close()
     return json
+
+@app.delete('/users/{id}')
+async def deleteUser(request: Request, id: str):
+    token = request.headers.get("Authorization")
+    if not token:
+        raise HTTPException(status_code=401, detail="Token not provided")
+    
+    token = token.replace("Bearer ", "") if "Bearer " in token else token
+    
+    if not validate_token(token):
+        raise HTTPException(status_code=403, detail="Invalid token")
+    
+    dataBase = r'./BDloja.DB'
+    conn = create_connect(dataBase)
+    check_query = f"""
+    select id, firstName, lastName, email, phone    
+    from cadastro
+    Where id = '{id}'
+    """
+    user = execute_query(conn, check_query)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    delete_query = f"""
+    DELETE
+    FROM cadastro
+    WHERE id = '{id}'
+    """
+    execute_query(conn, delete_query)
+    
+    conn.close()
+    return "User deleted successfully"
