@@ -9,7 +9,7 @@ import uuid
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 3
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 origins = [
     "http://localhost:4200",
@@ -115,8 +115,20 @@ async def getUsers(request: Request):
     from cadastro
     """
     users = execute_query(conn, query)
+    # "size": len(users),
+    # "content": {"nome": user[1]}
+    content = []
+    for user in users:
+        content.append(
+            {
+                "id": user[0],
+                "nome": user[1] + ' ' + user[2],
+                "email": user[3],
+                "phone": user[4]
+            }
+        )
     json = {
         "size": len(users),
-        "content": users
-    }
+        "content": content
+        }
     return json
