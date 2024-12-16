@@ -1,0 +1,54 @@
+:host {
+    main {
+        background: url(../../../../../public/images/banner-image3.jpg);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        height: 100dvh;
+    }
+    .container{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 90vh;
+    }
+
+    .contain {
+        background: url(../../../../../public/images/login-bg.jpg);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        padding: 20px;
+        box-shadow: 3px 2px 20px 1px rgba(0, 0, 0, 0.329);
+
+        h1 {
+            text-align: center;
+            padding: 20px;
+            font-weight: normal;
+        }
+
+        label {
+            display: flex;
+            flex-direction: column;
+
+            input {
+                width: 400px;
+                background: transparent;
+                margin-bottom: 10px;
+                padding: 4px;
+                border: 1px solid rgba(0, 0, 0, 0.205);
+                text-indent: 10px;
+            }
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+
+            button {
+                margin-left: 8px;
+            }
+        }
+    }
+}
