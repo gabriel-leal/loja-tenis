@@ -29,7 +29,6 @@ app.add_middleware(
 dataBase = r'./BDloja.DB'
 
 def findUserDB(email: str, password: str):
-    # dataBase = r'./BDloja.DB'
     conn = create_connect(dataBase)
     query = f"""
     select 1
@@ -78,7 +77,6 @@ async def login(request: Request):
     retorno = await request.body()
     retorno = retorno.decode()
     data = json.loads(retorno)
-    #dataBase = r'./BDloja.DB'
     conn = create_connect(dataBase)
     query = f"""
     select id, firstName, lastName, email
@@ -98,7 +96,6 @@ async def login(request: Request):
 @app.post("/sign")
 async def cadastro(request : Request):
     data = await request.json()
-    #dataBase = r'./BDloja.DB'
     conn = create_connect(dataBase)
     query = f"""
     select email
@@ -106,7 +103,6 @@ async def cadastro(request : Request):
     where email = "{data['email']}"
     """
     retorno = execute_query(conn, query)
-    msg = 0
     if len(retorno) == 0:
         query = f"""
         insert into cadastro (id, firstName, lastName, email, phone, password)
@@ -114,25 +110,14 @@ async def cadastro(request : Request):
         """
         execute_insert(conn, query)
     else:
-        print('Já existe')
-        msg = 'jaexiste'
+        raise HTTPException(status_code=400, detail="account already exists")
 
     conn.close()
-    return msg
 
 
 @app.get('/users')
 async def getUsers(request: Request):
-    # token = request.headers.get("Authorization")
-    # if not token:
-    #     raise HTTPException(status_code=401, detail="Token not provided")
-    
-    # token = token.replace("Bearer ", "") if "Bearer " in token else token
-    
-    # if not validate_token(token):
-    #     raise HTTPException(status_code=403, detail="Invalid token")
     getToken(request)
-    #dataBase = r'./BDloja.DB'
     conn = create_connect(dataBase)
     query = f"""
     select id, firstName, lastName, email, phone 
@@ -150,16 +135,7 @@ async def getUsers(request: Request):
 @app.put('/users/{id}')
 async def changePassword(request: Request, id: str):
     data = await request.json()
-    # token = request.headers.get("Authorization")
-    # if not token:
-    #     raise HTTPException(status_code=401, detail="Token not provided")
-    
-    # token = token.replace("Bearer ", "") if "Bearer " in token else token
-    
-    # if not validate_token(token):
-    #     raise HTTPException(status_code=403, detail="Invalid token")
     getToken(request)
-    #dataBase = r'./BDloja.DB'
     conn = create_connect(dataBase)
     check_query = f"""
     select password    
@@ -187,16 +163,7 @@ async def changePassword(request: Request, id: str):
         
 @app.delete('/users/{id}')
 async def deleteUser(request: Request, id: str):
-    # token = request.headers.get("Authorization")
-    # if not token:
-    #     raise HTTPException(status_code=401, detail="Token not provided")
-    
-    # token = token.replace("Bearer ", "") if "Bearer " in token else token
-    
-    # if not validate_token(token):
-    #     raise HTTPException(status_code=403, detail="Invalid token")
     getToken(request)
-    #dataBase = r'./BDloja.DB'
     conn = create_connect(dataBase)
     check_query = f"""
     select id, firstName, lastName, email, phone    

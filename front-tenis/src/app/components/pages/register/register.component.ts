@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SignService } from '../../../services/sign/sign.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
@@ -33,7 +33,11 @@ export class RegisterComponent implements OnInit {
         this.router.navigate(['/login'])
       },
       error: (err) => {
-        console.log(err)
+        if (err.error.detail === 'account already exists') {
+          document.querySelectorAll('span').forEach(span => {
+            span.style.display = 'block';
+          });
+        }
       }
     })
   }

@@ -19,8 +19,10 @@
                 <label for="password">
                     <input type="password" formControlName="password" placeholder="Senha" required autocomplete="new-password">
                 </label>
+                <span style="display: none;">Conta já existente!</span>
     
                 <button type="button" class="btn btn-primary" (click)="submit()">Registrar-se</button>
+                <button type="button" class="btn btn-secondary" [routerLink]="'/login'">Fazer login</button>
             </form>
         </div>
     </div>
