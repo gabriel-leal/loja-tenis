@@ -1,15 +1,15 @@
 html, body {
     height: 100%;
     &::-webkit-scrollbar {
-        width: 5px;
+        width: 10px;
     }
   
     &::-webkit-scrollbar-track {
-        background: var(--black);
+        background: var(--white);
     }
   
     &::-webkit-scrollbar-thumb {
-        background: var(--primary);
+        background: rgb(68, 67, 67);
         border-radius: 5px;
     }
 }

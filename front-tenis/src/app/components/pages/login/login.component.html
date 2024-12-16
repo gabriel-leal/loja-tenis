@@ -2,16 +2,17 @@
     <div class="container">
         <div class="contain">
             <h1>Login</h1>
-            <form>
+            <form [formGroup]="form">
                 <label for="email">
-                    <input type="email" placeholder="Email" autocomplete="email">
+                    <input type="email" formControlName="email" placeholder="Email" autocomplete="email">
                 </label>
                 <label for="password">
-                    <input type="password" placeholder="Senha" autocomplete="new-password">
+                    <input type="password" formControlName="password" placeholder="Senha" autocomplete="new-password">
                 </label>
+                <span style="display: none;">Email ou senha incorretos!!</span>
                 <div class="buttons">
-                    <button type="button" class="btn btn-primary">Login</button>
-                    <button type="button" class="btn btn-secundery">Registrar-se</button>
+                    <button type="button" class="btn btn-primary" (click)="submit()">Login</button>
+                    <button type="button" class="btn btn-secondary" [routerLink]="'/register'">Registrar-se</button>
                 </div>
             </form>
         </div>
