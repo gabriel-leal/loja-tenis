@@ -3,25 +3,24 @@
     <div class="container">
         <div class="contain">
             <h1>Registrar-se</h1>
-            <form>
+            <form [formGroup]="form">
                 <label for="firstname">
-                    <input type="text" placeholder="Primeiro nome" autocomplete="cc-name" required>
+                    <input type="text" formControlName="firstName" placeholder="Primeiro nome" autocomplete="given-name" required>
                 </label>
                 <label for="lastname">
-                    <input type="text" placeholder="Último nome" autocomplete="family-name" required>
+                    <input type="text" formControlName="lastName" placeholder="Último nome" autocomplete="family-name" required>
                 </label>
                 <label for="email">
-                    <input type="email" placeholder="Email" required>
+                    <input type="email" formControlName="email" placeholder="Email" required autocomplete="email">
                 </label>
                 <label for="phone">
-                    <input type="tel" mask="(00) 00000-0000" placeholder="Telefone" required>
+                    <input type="tel" formControlName="phone" mask="(00) 00000-0000" placeholder="Telefone" required autocomplete="tel">
                 </label>
                 <label for="password">
-                    <input type="password" placeholder="Senha" required>
+                    <input type="password" formControlName="password" placeholder="Senha" required autocomplete="new-password">
                 </label>
     
-                
-                <button type="button" class="btn btn-primary">Registrar-se</button>
+                <button type="button" class="btn btn-primary" (click)="submit()">Registrar-se</button>
             </form>
         </div>
     </div>
