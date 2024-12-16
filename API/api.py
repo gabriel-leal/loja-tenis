@@ -94,8 +94,8 @@ async def cadastro(request : Request):
         msg = 'jaexiste'
 
     conn.close()
-            
     return msg
+
 
 @app.get('/users')
 async def getUsers(request: Request):
@@ -123,6 +123,43 @@ async def getUsers(request: Request):
     conn.close()
     return json
 
+@app.put('/users/{id}')
+async def changePassword(request: Request, id: str):
+    data = await request.json()
+    token = request.headers.get("Authorization")
+    if not token:
+        raise HTTPException(status_code=401, detail="Token not provided")
+    
+    token = token.replace("Bearer ", "") if "Bearer " in token else token
+    
+    if not validate_token(token):
+        raise HTTPException(status_code=403, detail="Invalid token")
+    
+    dataBase = r'./BDloja.DB'
+    conn = create_connect(dataBase)
+    check_query = f"""
+    select id, firstName, lastName, password    
+    from cadastro
+    Where id = '{id}'
+    """
+    user = execute_query(conn, check_query)
+    if data['atual'] == user[0][3]:
+        novasenha = data['novasenha']
+        update_query = f"""
+        UPDATE cadastro
+        SET password = '{novasenha}'
+        WHERE id = '{id}'
+        """
+        execute_query(conn, update_query)
+        msg = "Password changed"
+        
+    else:
+        msg = "senhas não conhecidem!"    
+        
+    conn.close()
+    return msg
+
+        
 @app.delete('/users/{id}')
 async def deleteUser(request: Request, id: str):
     token = request.headers.get("Authorization")
