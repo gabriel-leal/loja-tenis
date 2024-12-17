@@ -6,6 +6,7 @@ import json
 from connect import execute_insert, create_connect, execute_query
 import os
 import uuid
+import BD
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
@@ -15,6 +16,8 @@ origins = [
     "http://localhost:4200",
     "http://127.0.0.1:4200",
 ]
+
+dataBase = BD.db
 
 app = FastAPI()
 
@@ -26,8 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-dataBase = r'./BDloja.DB'
-
+# procura usuario no banco
 def findUserDB(email: str, password: str):
     conn = create_connect(dataBase)
     query = f"""
@@ -41,7 +43,7 @@ def findUserDB(email: str, password: str):
     else:
         return None
 
-
+# cria o token
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
@@ -53,6 +55,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+# valida se token é valido
 def validate_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -61,6 +64,7 @@ def validate_token(token: str):
         raise HTTPException(status_code=403, detail="Invalid token")
     
     
+# pega o token pelo header do frontEnd
 def getToken(request):
     token = request.headers.get("Authorization")
     if not token:
@@ -72,6 +76,7 @@ def getToken(request):
         raise HTTPException(status_code=403, detail="Invalid token") 
 
 
+# faz login
 @app.post("/login")
 async def login(request: Request):
     retorno = await request.body()
@@ -93,6 +98,7 @@ async def login(request: Request):
     conn.close()
     return {"access_token": access_token, "token_type": "bearer", "expire_in_sec": ACCESS_TOKEN_EXPIRE_MINUTES * 60}
 
+# faz cadastro
 @app.post("/sign")
 async def cadastro(request : Request):
     data = await request.json()
@@ -114,7 +120,7 @@ async def cadastro(request : Request):
 
     conn.close()
 
-
+# lista todos usuários
 @app.get('/users')
 async def getUsers(request: Request):
     getToken(request)
@@ -132,6 +138,7 @@ async def getUsers(request: Request):
     conn.close()
     return json
 
+# edita usuário
 @app.put('/users/{id}')
 async def changePassword(request: Request, id: str):
     data = await request.json()
@@ -160,7 +167,7 @@ async def changePassword(request: Request, id: str):
     conn.close()
     return msg
 
-        
+# deleta usuário    
 @app.delete('/users/{id}')
 async def deleteUser(request: Request, id: str):
     getToken(request)
@@ -183,3 +190,96 @@ async def deleteUser(request: Request, id: str):
     
     conn.close()
     return "User deleted successfully"
+
+
+#cria produto
+@app.post('/products')
+async def createProduct(req: Request):
+    data = await req.json()
+    getToken(req)
+    conn = create_connect(dataBase)
+    check_query = f"""
+        select sku, nome, cor, qtd
+        from produtos
+        where sku = '{data['sku']}'
+    """
+    prod = execute_query(conn, check_query)
+    if len(prod) == 0:
+        insert_query = f"""
+        insert into produtos (sku, nome, cor, qtd)
+        VALUES("{data['sku']}","{data['nome']}","{data['cor']}","{data['qtd']}")
+        """
+        execute_insert(conn, insert_query)
+        
+        conn.close()
+        return 'Product created successfully'
+    else:
+        raise HTTPException(status_code=400, detail='product already registered')
+    
+#lista produtos
+@app.get('/products')
+async def getProducts(req: Request):
+    getToken(req)
+    conn = create_connect(dataBase)
+    query = f"""
+    select sku, nome, cor, qtd 
+    from produtos
+    """
+    produtos = execute_query(conn, query)
+    content = []
+    for produto in produtos:
+        content.append({"sku": produto[0],"nome": produto[1], "cor": produto[2], "qtd": produto[3]})
+    json = {"size": len(produtos),"content": content}
+    
+    conn.close()
+    return json
+  
+# edita produto
+@app.put('/products/{sku}')
+async def editProduct(req: Request, sku: str):
+    data = await req.json()
+    getToken(req)
+    conn = create_connect(dataBase)
+    check_query = f"""
+    select sku, nome, cor, qtd
+    from produtos
+    where sku = '{sku}'
+    """
+    res = execute_query(conn, check_query)
+    if not res:
+        raise HTTPException(status_code=404, detail='product not found')
+    
+    update_query = f"""
+    UPDATE produtos
+    SET sku = '{data['sku']}',nome = '{data['nome']}',cor = '{data['cor']}', qtd = '{data['qtd']}'
+    WHERE sku = '{sku}';
+    """
+    execute_query(conn, update_query)
+    execute_query(conn, 'commit')
+    
+    conn.close()
+    return 'changed product'
+    
+#exclui produto
+@app.delete('/products/{sku}')
+async def editProduct(req: Request, sku: str):
+    getToken(req)
+    conn = create_connect(dataBase)
+    check_query = f"""
+    select sku, nome, cor, qtd    
+    from produtos
+    Where sku = '{sku}'
+    """
+    produto = execute_query(conn, check_query)
+    if not produto:
+        raise HTTPException(status_code=404, detail="product not found")
+    delete_query = f"""
+    DELETE
+    FROM produtos
+    WHERE sku = '{sku}'
+    """
+    execute_query(conn, delete_query)
+    execute_query(conn, 'commit')
+    
+    conn.close()
+    return "product deleted successfully"
