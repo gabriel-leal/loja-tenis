@@ -283,3 +283,29 @@ async def editProduct(req: Request, sku: str):
     
     conn.close()
     return "product deleted successfully"
+
+#adiciona produto no carrinho
+@app.post('/cart/{id}/{sku}')
+async def addCart(req: Request, id: str, sku: str):
+    data = await req.json()
+    getToken(req)
+    conn = create_connect(dataBase)
+    prod_query = f"""
+    select sku, nome, cor, qtd  
+    from produtos
+    Where sku = '{sku}'
+    """
+    prod_cart = execute_query(conn, prod_query)
+    cart_query = f"""
+    select sku 
+    from carrinho
+    Where sku = '{sku}' and id = '{id}'
+    """
+    cart = execute_query(conn, cart_query)
+    qtdcart = 0
+    if len(cart) == 0:
+        insert_query = f"""
+        insert into carrinho (id, sku, nome, cor, qtd, qtdcart)
+        VALUES("{data['id']}", "{prod_cart[0][0]}", "{prod_cart[0][1]}","{prod_cart[0][2]}","{prod_cart[0][3]}", "{qtdcart}")
+        """
+        execute_insert(conn, insert_query)
