@@ -10,7 +10,7 @@ import BD
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 5
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 origins = [
     "http://localhost:4200",
@@ -291,21 +291,69 @@ async def addCart(req: Request, id: str, sku: str):
     getToken(req)
     conn = create_connect(dataBase)
     prod_query = f"""
-    select sku, nome, cor, qtd  
+    select sku, qtd  
     from produtos
     Where sku = '{sku}'
     """
-    prod_cart = execute_query(conn, prod_query)
-    cart_query = f"""
-    select sku 
-    from carrinho
-    Where sku = '{sku}' and id = '{id}'
-    """
-    cart = execute_query(conn, cart_query)
-    qtdcart = 0
-    if len(cart) == 0:
-        insert_query = f"""
-        insert into carrinho (id, sku, nome, cor, qtd, qtdcart)
-        VALUES("{data['id']}", "{prod_cart[0][0]}", "{prod_cart[0][1]}","{prod_cart[0][2]}","{prod_cart[0][3]}", "{qtdcart}")
+    produto = execute_query(conn, prod_query)
+    if len(produto) > 0:
+        cart_query = f"""
+        select sku, qtdcart 
+        from carrinho
+        Where sku = '{sku}' and id = '{id}'
         """
-        execute_insert(conn, insert_query)
+        carrinho = execute_query(conn, cart_query)
+        if len(carrinho) > 0:
+            if (int(carrinho[0][1]) + data['qtd_compra']) > produto[0][1]:
+                raise HTTPException(status_code=404, detail='acabou')
+            qtd = carrinho[0][1]
+            qtd += data['qtd_compra']
+            update_query = f"""
+            UPDATE carrinho
+            SET qtdcart = '{qtd}'
+            WHERE sku = '{sku}' and id = '{id}'
+            """
+            execute_query(conn, update_query)
+            execute_query(conn, 'commit')
+        else:
+            qtd = produto[0][1]
+            qtd_compra = data['qtd_compra']
+            if qtd_compra > qtd:
+                raise HTTPException(status_code=404, detail='product not in stock')    
+            insert_query = f"""
+            insert into carrinho (id, sku, qtdcart)
+            VALUES("{id}", "{sku}", "{qtd_compra}")
+            """
+            execute_insert(conn, insert_query)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    # cart_query = f"""
+    # select sku 
+    # from carrinho
+    # Where sku = '{sku}' and id = '{id}'
+    # """
+    # cart = execute_query(conn, cart_query)
+    # qtdcart = 0
+    # if len(cart) == 0:
+    #     insert_query = f"""
+    #     insert into carrinho (id, sku, nome, cor, qtd, qtdcart)
+    #     VALUES("{data['id']}", "{prod_cart[0][0]}", "{prod_cart[0][1]}","{prod_cart[0][2]}","{prod_cart[0][3]}", "{qtdcart}")
+    #     """
+    #     execute_insert(conn, insert_query)
