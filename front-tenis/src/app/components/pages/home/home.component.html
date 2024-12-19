@@ -148,13 +148,13 @@
       </div>
       <div class="product-content padding-small">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5">
-          <div class="col mb-4">
+          <div class="col mb-4" *ngFor="let item of produtos_array; let i = index">
             <div class="product-card position-relative">
               <div class="card-img">
-                <img src="images/card-item1.jpg" alt="product-item" class="product-image img-fluid">
+                <img src="{{item.img}}" alt="product-item" class="product-image img-fluid">
                 <div class="cart-concern position-absolute d-flex justify-content-center">
                   <div class="cart-button d-flex gap-2 justify-content-center align-items-center">
-                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modallong">
+                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modallong" (click)="submit(i)">
                         +
                     </button>
                   </div>
@@ -163,93 +163,9 @@
               </div>
               <div class="card-detail d-flex justify-content-between align-items-center mt-3">
                 <h3 class="card-title fs-6 fw-normal m-0">
-                  <a href="index.html">Vans vermelho</a>
+                  <a href="index.html">{{ item.nome }}</a>
                 </h3>
-                <span class="card-price fw-bold">R$399,99</span>
-              </div>
-            </div>
-          </div>
-          <div class="col mb-4">
-            <div class="product-card position-relative">
-              <div class="card-img">
-                <img src="images/card-item2.jpg" alt="product-item" class="product-image img-fluid">
-                <div class="cart-concern position-absolute d-flex justify-content-center">
-                  <div class="cart-button d-flex gap-2 justify-content-center align-items-center">
-                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modallong">
-                        +
-                    </button>
-                  </div>
-                </div>
-                <!-- cart-concern -->
-              </div>
-              <div class="card-detail d-flex justify-content-between align-items-center mt-3">
-                <h3 class="card-title fs-6 fw-normal m-0">
-                  <a href="index.html">Nike colorido</a>
-                </h3>
-                <span class="card-price fw-bold">R$600,00</span>
-              </div>
-            </div>
-          </div>
-          <div class="col mb-4">
-            <div class="product-card position-relative">
-              <div class="card-img">
-                <img src="images/card-item3.jpg" alt="product-item" class="product-image img-fluid">
-                <div class="cart-concern position-absolute d-flex justify-content-center">
-                  <div class="cart-button d-flex gap-2 justify-content-center align-items-center">
-                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modallong">
-                        +
-                    </button>
-                  </div>
-                </div>
-                <!-- cart-concern -->
-              </div>
-              <div class="card-detail d-flex justify-content-between align-items-center mt-3">
-                <h3 class="card-title fs-6 fw-normal m-0">
-                  <a href="index.html">Nike Vermelho</a>
-                </h3>
-                <span class="card-price fw-bold">R$ 310,99</span>
-              </div>
-            </div>
-          </div>
-          <div class="col mb-4">
-            <div class="product-card position-relative">
-              <div class="card-img">
-                <img src="images/card-item4.jpg" alt="product-item" class="product-image img-fluid">
-                <div class="cart-concern position-absolute d-flex justify-content-center">
-                  <div class="cart-button d-flex gap-2 justify-content-center align-items-center">
-                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modallong">
-                        +
-                    </button>
-                  </div>
-                </div>
-                <!-- cart-concern -->
-              </div>
-              <div class="card-detail d-flex justify-content-between align-items-center mt-3">
-                <h3 class="card-title fs-6 fw-normal m-0">
-                  <a href="index.html">Nike rosa</a>
-                </h3>
-                <span class="card-price fw-bold">R$ 289,99</span>
-              </div>
-            </div>
-          </div>
-          <div class="col mb-4">
-            <div class="product-card position-relative">
-              <div class="card-img">
-                <img src="images/card-item5.jpg" alt="product-item" class="product-image img-fluid">
-                <div class="cart-concern position-absolute d-flex justify-content-center">
-                  <div class="cart-button d-flex gap-2 justify-content-center align-items-center">
-                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modallong">
-                        +
-                    </button>
-                  </div>
-                </div>
-                <!-- cart-concern -->
-              </div>
-              <div class="card-detail d-flex justify-content-between align-items-center mt-3">
-                <h3 class="card-title fs-6 fw-normal m-0">
-                  <a href="index.html">Nike laranja</a>
-                </h3>
-                <span class="card-price fw-bold">R$ 879,90</span>
+                <span class="card-price fw-bold">{{ item.preco }}</span>
               </div>
             </div>
           </div>

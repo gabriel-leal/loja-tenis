@@ -199,15 +199,15 @@ async def createProduct(req: Request):
     getToken(req)
     conn = create_connect(dataBase)
     check_query = f"""
-        select sku, nome, cor, qtd
+        select sku
         from produtos
         where sku = '{data['sku']}'
     """
     prod = execute_query(conn, check_query)
     if len(prod) == 0:
         insert_query = f"""
-        insert into produtos (sku, nome, cor, qtd)
-        VALUES("{data['sku']}","{data['nome']}","{data['cor']}","{data['qtd']}")
+        insert into produtos (sku, nome, cor, qtd, preco, img)
+        VALUES("{data['sku']}","{data['nome']}","{data['cor']}","{data['qtd']}","{data['preco']}","{data['img']}")
         """
         execute_insert(conn, insert_query)
         
@@ -222,13 +222,13 @@ async def getProducts(req: Request):
     getToken(req)
     conn = create_connect(dataBase)
     query = f"""
-    select sku, nome, cor, qtd 
+    select sku, nome, cor, qtd, preco, img 
     from produtos
     """
     produtos = execute_query(conn, query)
     content = []
     for produto in produtos:
-        content.append({"sku": produto[0],"nome": produto[1], "cor": produto[2], "qtd": produto[3]})
+        content.append({"sku": produto[0],"nome": produto[1], "cor": produto[2], "qtd": produto[3], "preco": produto[4], "img": produto[5]})
     json = {"size": len(produtos),"content": content}
     
     conn.close()
@@ -251,7 +251,7 @@ async def editProduct(req: Request, sku: str):
     
     update_query = f"""
     UPDATE produtos
-    SET sku = '{data['sku']}',nome = '{data['nome']}',cor = '{data['cor']}', qtd = '{data['qtd']}'
+    SET sku = '{data['sku']}',nome = '{data['nome']}',cor = '{data['cor']}', qtd = '{data['qtd']}, preco = '{data['preco']}', img = '{data['img']}'
     WHERE sku = '{sku}';
     """
     execute_query(conn, update_query)
