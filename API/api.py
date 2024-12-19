@@ -326,34 +326,22 @@ async def addCart(req: Request, id: str, sku: str):
             """
             execute_insert(conn, insert_query)
     
+
+#lista o que tem no carrinho
+@app.get('/cart/{id}')
+async def getProducts(req: Request, id: str):
+    getToken(req)
+    conn = create_connect(dataBase)
+    query = f"""
+    select sku, qtdcart 
+    from carrinho
+    where id = '{id}'
+    """
+    produtos = execute_query(conn, query)
+    content = []
+    for produto in produtos:
+        content.append({"id": id, "sku": produto[0], "qtdcarrinho": produto[1]})
+    json = {"size": len(produtos),"content": content}
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    # cart_query = f"""
-    # select sku 
-    # from carrinho
-    # Where sku = '{sku}' and id = '{id}'
-    # """
-    # cart = execute_query(conn, cart_query)
-    # qtdcart = 0
-    # if len(cart) == 0:
-    #     insert_query = f"""
-    #     insert into carrinho (id, sku, nome, cor, qtd, qtdcart)
-    #     VALUES("{data['id']}", "{prod_cart[0][0]}", "{prod_cart[0][1]}","{prod_cart[0][2]}","{prod_cart[0][3]}", "{qtdcart}")
-    #     """
-    #     execute_insert(conn, insert_query)
+    conn.close()
+    return json
