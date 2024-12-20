@@ -30,16 +30,16 @@
         <div class="modal-body">
           <div class="shopping-cart">
             <div class="shopping-cart-content">
-              <div class="mini-cart cart-list p-0 mt-3">
+              <div class="mini-cart cart-list p-0 mt-3" *ngFor="let item of carrinho_array; let i = index">
                 <div class="mini-cart-item d-flex border-bottom pb-3">
                   <div class="col-lg-2 col-md-3 col-sm-2 me-4">
                     <a href="#" title="product-image">
-                      <img src="images/single-product-thumb2.jpg" class="img-fluid" alt="single-product-item">
+                      <img src="{{ item.img }}" class="img-fluid" alt="single-product-item">
                     </a>
                   </div>
                   <div class="col-lg-9 col-md-8 col-sm-8">
                     <div class="product-header d-flex justify-content-between align-items-center mb-3">
-                      <h4 class="product-title fs-6 me-5">nike colorido</h4>
+                      <h4 class="product-title fs-6 me-5">{{ item.nome }}</h4>
                       <a href="" class="remove" aria-label="Remove this item" data-product_id="11913"
                         data-cart_item_key="abc" data-product_sku="">
                         <svg class="close">
@@ -54,14 +54,14 @@
                           data-type="minus">
                             -
                         </button>
-                        <input type="text" name="quantity" class="form-control input-number quantity" value="1">
+                        <input type="text" name="quantity" class="form-control input-number quantity" value="{{ item.qtdcarrinho }}">
                         <button type="button" class="quantity-right-plus btn btn-light rounded-0 rounded-end btn-number"
                           data-type="plus">
                               +
                         </button>
                       </div>
                       <div class="price-code">
-                        <span class="product-price fs-6">R$600,00</span>
+                        <span class="product-price fs-6">R${{ item.preco }}</span>
                       </div>
                     </div>
                     <!-- quantity-price -->
@@ -74,7 +74,7 @@
                 <span class="special-price-code">
                   <span class="price-amount amount fs-6" style="opacity: 1;">
                     <bdi>
-                      <span class="price-currency-symbol">R$</span>600,00</bdi>
+                      <span class="price-currency-symbol">R$</span>{{ total }}</bdi>
                   </span>
                 </span>
               </div>

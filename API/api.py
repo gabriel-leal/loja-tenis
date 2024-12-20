@@ -291,11 +291,12 @@ async def addCart(req: Request, id: str, sku: str):
     getToken(req)
     conn = create_connect(dataBase)
     prod_query = f"""
-    select sku, qtd  
+    select sku, qtd, nome, preco, img  
     from produtos
     Where sku = '{sku}'
     """
     produto = execute_query(conn, prod_query)
+    print(produto)
     if len(produto) > 0:
         cart_query = f"""
         select sku, qtdcart 
@@ -321,8 +322,8 @@ async def addCart(req: Request, id: str, sku: str):
             if qtd_compra > qtd:
                 raise HTTPException(status_code=404, detail='product not in stock')    
             insert_query = f"""
-            insert into carrinho (id, sku, qtdcart)
-            VALUES("{id}", "{sku}", "{qtd_compra}")
+            insert into carrinho (id, sku, qtdcart, nome, preco, img)
+            VALUES("{id}", "{sku}", "{qtd_compra}", "{produto[0][2]}", "{produto[0][3]}", "{produto[0][4]}")
             """
             execute_insert(conn, insert_query)
     
@@ -333,14 +334,14 @@ async def getProducts(req: Request, id: str):
     getToken(req)
     conn = create_connect(dataBase)
     query = f"""
-    select sku, qtdcart 
+    select sku, qtdcart, nome, img, preco
     from carrinho
     where id = '{id}'
     """
     produtos = execute_query(conn, query)
     content = []
     for produto in produtos:
-        content.append({"id": id, "sku": produto[0], "qtdcarrinho": produto[1]})
+        content.append({"id": id, "sku": produto[0], "qtdcarrinho": produto[1], "nome": produto[2], "img": produto[3], "preco": produto[4]})
     json = {"size": len(produtos),"content": content}
     
     conn.close()

@@ -17,6 +17,9 @@ export class HomeComponent implements OnInit {
 
   produtos_array: any[] = []
   produtos: any[] = []
+  carrinho_array: any[] = []
+  carrinho: any[] = []
+  total: number = 0
   public id: string = localStorage.getItem(LOCAL_STORAGE_KEYS.ID) ?? '';
 
 
@@ -34,7 +37,11 @@ export class HomeComponent implements OnInit {
     })
     this.carrinhoService.listaCarrinho(this.id).subscribe({
       next: (res) => {
-        console.log(res)
+        this.carrinho_array = res.content
+        this.carrinho = res
+        this.carrinho_array.forEach(element => {
+          this.total = this.total + element.preco
+        });
       },
       error: (err) => {
         console.log(err)
@@ -46,5 +53,4 @@ export class HomeComponent implements OnInit {
     const produto = this.produtos_array[index]
     console.log(this.id, produto)
   }
-
 }
