@@ -82,7 +82,7 @@ async def login(request: Request):
     retorno = await request.body()
     retorno = retorno.decode()
     data = json.loads(retorno)
-    conn = create_connect(dataBase)
+    conn = create_connect()
     query = f"""
     select id, firstName, lastName, email
     from cadastro
@@ -102,16 +102,16 @@ async def login(request: Request):
 @app.post("/sign")
 async def cadastro(request : Request):
     data = await request.json()
-    conn = create_connect(dataBase)
+    conn = create_connect(BD.banco)
     query = f"""
     select email
-    from cadastro
+    from usuarios
     where email = "{data['email']}"
     """
     retorno = execute_query(conn, query)
     if len(retorno) == 0:
         query = f"""
-        insert into cadastro (id, firstName, lastName, email, phone, password)
+        insert into usuarios (id, firstName, lastName, email, phone, password)
         VALUES("{uuid.uuid4()}","{data['firstName']}","{data['lastName']}","{data['email']}","{data['phone']}","{data['password']}")
         """
         execute_insert(conn, query)

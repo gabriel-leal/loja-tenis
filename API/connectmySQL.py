@@ -1,10 +1,11 @@
 import mysql.connector
 from mysql.connector import Error
 
-def create_connect(host, user, password, database):
+def create_connect(host, port, user, password, database):
     try:
         conn = mysql.connector.connect(
             host=host,
+            port=port,
             user=user,
             password=password,
             database=database
