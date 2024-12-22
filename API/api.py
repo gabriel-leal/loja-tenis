@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import jwt
 from datetime import datetime, timedelta
 import json
-from connect import execute_insert, create_connect, execute_query
+from connectmySQL import execute_insert, create_connect, execute_query
 import os
 import uuid
 import BD
@@ -117,8 +117,9 @@ async def cadastro(request : Request):
         execute_insert(conn, query)
     else:
         raise HTTPException(status_code=400, detail="account already exists")
-
+    
     conn.close()
+    return {"detail": "Account created"}
 
 # lista todos usuários
 @app.get('/users')
@@ -133,6 +134,8 @@ async def getUsers(request: Request):
     content = []
     for user in users:
         content.append({"id": user[0],"nome": user[1] + ' ' + user[2],"email": user[3],   "phone": user[4]})
+    if not content:
+        raise HTTPException(status_code=404, detail='Unable to fetch users')
     json = {"size": len(users),"content": content}
     
     conn.close()
@@ -159,13 +162,10 @@ async def changePassword(request: Request, id: str):
         """
         execute_query(conn, update_query)
         execute_query(conn, 'commit')
-        msg = "Password changed"
-        
+        conn.close()
+        return {"details": "Password changed"}
     else:
-        msg = "senhas não conhecidem!"    
-        
-    conn.close()
-    return msg
+        return {"details": "Passwords do not match"} 
 
 # deleta usuário    
 @app.delete('/users/{id}')
@@ -212,7 +212,7 @@ async def createProduct(req: Request):
         execute_insert(conn, insert_query)
         
         conn.close()
-        return 'Product created successfully'
+        return {"details": "Product created successfully"}
     else:
         raise HTTPException(status_code=400, detail='product already registered')
     
@@ -282,7 +282,7 @@ async def editProduct(req: Request, sku: str):
     execute_query(conn, 'commit')
     
     conn.close()
-    return "product deleted successfully"
+    return {"details": "product deleted successfully"}
 
 #adiciona produto no carrinho
 @app.post('/cart/{id}/{sku}')
@@ -296,7 +296,6 @@ async def addCart(req: Request, id: str, sku: str):
     Where sku = '{sku}'
     """
     produto = execute_query(conn, prod_query)
-    print(produto)
     if len(produto) > 0:
         cart_query = f"""
         select sku, qtdcart 
@@ -346,3 +345,27 @@ async def getProducts(req: Request, id: str):
     
     conn.close()
     return json
+
+# deleta produto do carrinho
+@app.delete('/cart/{id}/{sku}')
+async def deleteProduct(req: Request, id: str, sku: str):
+    getToken(req)
+    conn = create_connect(dataBase)
+    check_query = f"""
+        select id, sku, nome    
+        from carrinho
+        Where sku = '{sku}' and id = '{id}'
+        """
+    res = execute_query(conn, check_query)
+    if not res:
+        raise HTTPException(status_code=404, detail="product not found")
+    delete_query = f"""
+    DELETE
+    FROM carrinho
+    WHERE sku = '{sku}' and id = '{id}'
+    """
+    execute_query(conn, delete_query)
+    execute_query(conn, 'commit')
+    
+    conn.close()
+    return {"status": 200, "message": "Product successfully deleted"}  
