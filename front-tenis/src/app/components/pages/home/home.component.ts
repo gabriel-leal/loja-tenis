@@ -26,31 +26,48 @@ export class HomeComponent implements OnInit {
   constructor(private produtosService: ProdutosService, private carrinhoService: CarrinhoService){}
 
   ngOnInit(): void {
+    this.listaProdutos();
+    this.listaCarrinho();
+  }
+
+  listaProdutos(): void {
     this.produtosService.listaProdutos().subscribe({
       next: (res) => {
-        this.produtos_array = res.content
-        this.produtos = res
+        this.produtos_array = res.content;
+        this.produtos = res;
       },
       error: (err) => {
-        console.log(err)
+        console.log('Erro ao listar produtos:', err);
       }
-    })
+    });
+  }
+
+  listaCarrinho(): void {
+    this.total = 0;
     this.carrinhoService.listaCarrinho(this.id).subscribe({
       next: (res) => {
-        this.carrinho_array = res.content
-        this.carrinho = res
-        this.carrinho_array.forEach(element => {
-          this.total = this.total + element.preco
+        this.carrinho_array = res.content;
+        this.carrinho = res;
+        this.carrinho_array.forEach((element: any) => {
+          this.total += element.preco;
         });
       },
       error: (err) => {
-        console.log(err)
+        console.log('Erro ao listar carrinho:', err);
       }
-    })
+    });
   }
 
-  public submit(index: number){
-    const produto = this.produtos_array[index]
-    console.log(this.id, produto)
+  public submit(index: number): void {
+    const produto = this.produtos_array[index];
+    const dados = { id: this.id, qtd_compra: 1 };
+    this.carrinhoService.addCarrinho(dados, produto.sku).subscribe({
+      next: (res) => {
+        this.listaCarrinho();
+      },
+      error: (err) => {
+        console.log('Erro ao adicionar produto ao carrinho:', err);
+      }
+    });
   }
 }

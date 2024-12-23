@@ -12,6 +12,11 @@ export class CarrinhoService {
 
   constructor(private http: HttpClient) { }
 
+  public addCarrinho(dados: any, sku: string): Observable<any> {
+    return this.http.post(`${this.api}/cart/${sku}`, dados)
+  }
+  
+  
   public listaCarrinho(id: string): Observable<any>{
     return this.http.get(`${this.api}/cart/${id}`)
   }

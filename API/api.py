@@ -10,7 +10,7 @@ import BD
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 origins = [
     "http://localhost:4200",
@@ -31,13 +31,14 @@ app.add_middleware(
 
 # procura usuario no banco
 def findUserDB(email: str, password: str):
-    conn = create_connect(dataBase)
+    conn = create_connect(BD.banco)
     query = f"""
     select 1
-    from cadastro
+    from usuarios
     where email = "{email}" AND password = "{password}"
     """
     retorno = execute_query(conn, query)
+    conn.close()
     if len(retorno) > 0:
         return email
     else:
@@ -82,10 +83,10 @@ async def login(request: Request):
     retorno = await request.body()
     retorno = retorno.decode()
     data = json.loads(retorno)
-    conn = create_connect()
+    conn = create_connect(BD.banco)
     query = f"""
     select id, firstName, lastName, email
-    from cadastro
+    from usuarios
     where email = '{data['email']}'
     """
     retorno = execute_query(conn, query)
@@ -125,10 +126,10 @@ async def cadastro(request : Request):
 @app.get('/users')
 async def getUsers(request: Request):
     getToken(request)
-    conn = create_connect(dataBase)
+    conn = create_connect(BD.banco)
     query = f"""
     select id, firstName, lastName, email, phone 
-    from cadastro
+    from usuarios
     """
     users = execute_query(conn, query)
     content = []
@@ -146,17 +147,17 @@ async def getUsers(request: Request):
 async def changePassword(request: Request, id: str):
     data = await request.json()
     getToken(request)
-    conn = create_connect(dataBase)
+    conn = create_connect(BD.banco)
     check_query = f"""
     select password    
-    from cadastro
+    from usuarios
     Where id = '{id}'
     """
     user = execute_query(conn, check_query)
     if data['atual'] == user[0][0]:
         novasenha = data['novasenha']
         update_query = f"""
-        UPDATE cadastro
+        UPDATE usuarios
         SET password = '{novasenha}'
         WHERE id = '{id}'
         """
@@ -171,10 +172,10 @@ async def changePassword(request: Request, id: str):
 @app.delete('/users/{id}')
 async def deleteUser(request: Request, id: str):
     getToken(request)
-    conn = create_connect(dataBase)
+    conn = create_connect(BD.banco)
     check_query = f"""
     select id, firstName, lastName, email, phone    
-    from cadastro
+    from usuarios
     Where id = '{id}'
     """
     user = execute_query(conn, check_query)
@@ -182,7 +183,7 @@ async def deleteUser(request: Request, id: str):
         raise HTTPException(status_code=404, detail="User not found")
     delete_query = f"""
     DELETE
-    FROM cadastro
+    FROM usuarios
     WHERE id = '{id}'
     """
     execute_query(conn, delete_query)
@@ -197,7 +198,7 @@ async def deleteUser(request: Request, id: str):
 async def createProduct(req: Request):
     data = await req.json()
     getToken(req)
-    conn = create_connect(dataBase)
+    conn = create_connect(BD.banco)
     check_query = f"""
         select sku
         from produtos
@@ -220,7 +221,7 @@ async def createProduct(req: Request):
 @app.get('/products')
 async def getProducts(req: Request):
     getToken(req)
-    conn = create_connect(dataBase)
+    conn = create_connect(BD.banco)
     query = f"""
     select sku, nome, cor, qtd, preco, img 
     from produtos
@@ -239,7 +240,7 @@ async def getProducts(req: Request):
 async def editProduct(req: Request, sku: str):
     data = await req.json()
     getToken(req)
-    conn = create_connect(dataBase)
+    conn = create_connect(BD.banco)
     check_query = f"""
     select sku, nome, cor, qtd
     from produtos
@@ -264,7 +265,7 @@ async def editProduct(req: Request, sku: str):
 @app.delete('/products/{sku}')
 async def editProduct(req: Request, sku: str):
     getToken(req)
-    conn = create_connect(dataBase)
+    conn = create_connect(BD.banco)
     check_query = f"""
     select sku, nome, cor, qtd    
     from produtos
@@ -285,11 +286,12 @@ async def editProduct(req: Request, sku: str):
     return {"details": "product deleted successfully"}
 
 #adiciona produto no carrinho
-@app.post('/cart/{id}/{sku}')
-async def addCart(req: Request, id: str, sku: str):
+@app.post('/cart/{sku}')
+async def addCart(req: Request, sku: str):
     data = await req.json()
+    print(data['id'])
     getToken(req)
-    conn = create_connect(dataBase)
+    conn = create_connect(BD.banco)
     prod_query = f"""
     select sku, qtd, nome, preco, img  
     from produtos
@@ -300,7 +302,7 @@ async def addCart(req: Request, id: str, sku: str):
         cart_query = f"""
         select sku, qtdcart 
         from carrinho
-        Where sku = '{sku}' and id = '{id}'
+        Where sku = '{sku}' and id = '{data['id']}'
         """
         carrinho = execute_query(conn, cart_query)
         if len(carrinho) > 0:
@@ -311,7 +313,7 @@ async def addCart(req: Request, id: str, sku: str):
             update_query = f"""
             UPDATE carrinho
             SET qtdcart = '{qtd}'
-            WHERE sku = '{sku}' and id = '{id}'
+            WHERE sku = '{sku}' and id = '{data['id']}'
             """
             execute_query(conn, update_query)
             execute_query(conn, 'commit')
@@ -322,7 +324,7 @@ async def addCart(req: Request, id: str, sku: str):
                 raise HTTPException(status_code=404, detail='product not in stock')    
             insert_query = f"""
             insert into carrinho (id, sku, qtdcart, nome, preco, img)
-            VALUES("{id}", "{sku}", "{qtd_compra}", "{produto[0][2]}", "{produto[0][3]}", "{produto[0][4]}")
+            VALUES("{data['id']}", "{sku}", "{qtd_compra}", "{produto[0][2]}", "{produto[0][3]}", "{produto[0][4]}")
             """
             execute_insert(conn, insert_query)
     
@@ -331,7 +333,7 @@ async def addCart(req: Request, id: str, sku: str):
 @app.get('/cart/{id}')
 async def getProducts(req: Request, id: str):
     getToken(req)
-    conn = create_connect(dataBase)
+    conn = create_connect(BD.banco)
     query = f"""
     select sku, qtdcart, nome, img, preco
     from carrinho
@@ -350,7 +352,7 @@ async def getProducts(req: Request, id: str):
 @app.delete('/cart/{id}/{sku}')
 async def deleteProduct(req: Request, id: str, sku: str):
     getToken(req)
-    conn = create_connect(dataBase)
+    conn = create_connect(BD.banco)
     check_query = f"""
         select id, sku, nome    
         from carrinho

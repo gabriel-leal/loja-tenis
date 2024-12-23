@@ -1,7 +1,12 @@
 import mysql.connector
 from mysql.connector import Error
 
-def create_connect(host, port, user, password, database):
+def create_connect(banco):
+    host = banco['host']
+    port = banco['port']
+    user = banco['user'] 
+    password = banco['password'] 
+    database = banco['database']
     try:
         conn = mysql.connector.connect(
             host=host,
@@ -43,4 +48,3 @@ def execute_insert(conn, query):
         print(f"Erro ao executar a operação: {error}")
         
     return linhas
-
