@@ -20,4 +20,8 @@ export class CarrinhoService {
   public listaCarrinho(id: string): Observable<any>{
     return this.http.get(`${this.api}/cart/${id}`)
   }
+
+  public deleteCarrinho(id: string): Observable<any> {
+    return this.http.delete(`${this.api}/cart/${id}`)
+  }
 }

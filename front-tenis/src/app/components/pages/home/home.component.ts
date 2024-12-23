@@ -5,6 +5,8 @@ import { ProdutosService } from '../../../services/produtos/produtos.service';
 import { CommonModule } from '@angular/common';
 import { LOCAL_STORAGE_KEYS } from '../../../app.config';
 import { CarrinhoService } from '../../../services/carrinho/carrinho.service';
+import { Router } from '@angular/router';
+import { style } from '@angular/animations';
 
 @Component({
   selector: 'app-home',
@@ -23,7 +25,7 @@ export class HomeComponent implements OnInit {
   public id: string = localStorage.getItem(LOCAL_STORAGE_KEYS.ID) ?? '';
 
 
-  constructor(private produtosService: ProdutosService, private carrinhoService: CarrinhoService){}
+  constructor(private produtosService: ProdutosService, private carrinhoService: CarrinhoService, private router: Router){}
 
   ngOnInit(): void {
     this.listaProdutos();
@@ -70,4 +72,23 @@ export class HomeComponent implements OnInit {
       }
     });
   }
-}
+
+  public deleteCart(): void {
+    this.carrinhoService.deleteCarrinho(this.id).subscribe({
+      next: (res) => {
+        console.log(res)
+        window.location.reload()
+      },
+      error: (err) => {
+        console.log(err)
+      }
+    })}
+
+    public compra(): void {
+      const backdrop = document.querySelector('.modal-backdrop.fade') as HTMLElement;
+      if (backdrop) {
+          backdrop.style.opacity = '0';
+      }
+      this.router.navigate(['/checkout'])
+    }
+  }

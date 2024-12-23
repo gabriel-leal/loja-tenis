@@ -289,7 +289,6 @@ async def editProduct(req: Request, sku: str):
 @app.post('/cart/{sku}')
 async def addCart(req: Request, sku: str):
     data = await req.json()
-    print(data['id'])
     getToken(req)
     conn = create_connect(BD.banco)
     prod_query = f"""
@@ -371,3 +370,19 @@ async def deleteProduct(req: Request, id: str, sku: str):
     
     conn.close()
     return {"status": 200, "message": "Product successfully deleted"}  
+
+# deletar todo o carrinho
+@app.delete('/cart/{id}')
+async def deleteCart(req: Request, id: str):
+    getToken(req)
+    conn = create_connect(BD.banco)
+    delete_query = f"""
+        delete
+        from carrinho
+        where id = '{id}'
+    """
+    execute_query(conn, delete_query)
+    execute_query(conn, 'commit')
+    conn.close()
+    return {"status": 200, "message": "cart successfully deleted"}
+    
