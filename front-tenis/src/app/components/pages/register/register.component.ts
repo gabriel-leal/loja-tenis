@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { SignService } from '../../../services/sign/sign.service';
 import { Router, RouterModule } from '@angular/router';
 import { NgxMaskDirective, NgxMaskPipe } from 'ngx-mask';
+import { showContainerAnimation } from '../../../animations/show-container.animation';
 
 @Component({
   selector: 'app-register',
@@ -10,6 +11,7 @@ import { NgxMaskDirective, NgxMaskPipe } from 'ngx-mask';
   imports: [ReactiveFormsModule, RouterModule, NgxMaskDirective],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
+  animations: [showContainerAnimation]
 })
 export class RegisterComponent implements OnInit {
 

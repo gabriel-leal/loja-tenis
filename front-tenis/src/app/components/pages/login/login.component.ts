@@ -5,13 +5,16 @@ import { Router, RouterModule } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { LoginService } from '../../../services/login/login.service';
 import { DecodedToken } from '../../../interfaces/decodedToken/decoded-token';
+import { animate, query, style, transition, trigger } from '@angular/animations';
+import { showContainerAnimation } from '../../../animations/show-container.animation';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
+  animations: [showContainerAnimation]  
 })
 export class LoginComponent implements OnInit {
 
