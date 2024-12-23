@@ -52,7 +52,11 @@
                         <button type="button"
                           class="quantity-left-minus btn btn-light rounded-0 rounded-start btn-number"
                           data-type="minus">
+                          @if (item.qtdcarrinho === 1) {
+                            x
+                          } @else {
                             -
+                          }
                         </button>
                         <input type="text" name="quantity" class="form-control input-number quantity" value="{{ item.qtdcarrinho }}">
                         <button type="button" class="quantity-right-plus btn btn-light rounded-0 rounded-end btn-number"
@@ -61,7 +65,7 @@
                         </button>
                       </div>
                       <div class="price-code">
-                        <span class="product-price fs-6">R${{ item.preco }}</span>
+                        <span class="product-price fs-6">R${{ item.preco.toFixed(2) }}</span>
                       </div>
                     </div>
                     <!-- quantity-price -->
@@ -74,7 +78,7 @@
                 <span class="special-price-code">
                   <span class="price-amount amount fs-6" style="opacity: 1;">
                     <bdi>
-                      <span class="price-currency-symbol">R$</span>{{ total }}</bdi>
+                      <span class="price-currency-symbol">R$</span>{{ total.toFixed(2) }}</bdi>
                   </span>
                 </span>
               </div>
