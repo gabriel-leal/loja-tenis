@@ -158,9 +158,15 @@
                 <img src="{{item.img}}" alt="product-item" class="product-image img-fluid">
                 <div class="cart-concern position-absolute d-flex justify-content-center">
                   <div class="cart-button d-flex gap-2 justify-content-center align-items-center">
-                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modallong" (click)="submit(i)">
+                    @if (isLogged() === false) {
+                      <button type="button" class="btn btn-light" (click)="logout()">
+                          +
+                      </button>
+                    } @else {
+                      <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modallong" (click)="submit(i)">
                         +
                     </button>
+                    }
                   </div>
                 </div>
                 <!-- cart-concern -->

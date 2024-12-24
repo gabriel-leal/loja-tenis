@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth/auth.service';
+import { LOCAL_STORAGE_KEYS } from '../../app.config';
 
 @Component({
   selector: 'app-header',
@@ -10,8 +10,18 @@ import { AuthService } from '../../services/auth/auth.service';
 })
 export class HeaderComponent {
 
-  constructor(private service: AuthService){}
+  constructor(){}
+
   public logout(){
-    this.service.logout()
+    localStorage.clear()
+    window.location.reload()
   }
+
+  public isLogged(): boolean {
+    let id = localStorage.getItem(LOCAL_STORAGE_KEYS.ID);
+    if (!id) {
+        return false;
+    }
+    return true;
+}
 }

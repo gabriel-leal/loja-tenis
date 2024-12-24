@@ -7,6 +7,7 @@ import { LOCAL_STORAGE_KEYS } from '../../../app.config';
 import { CarrinhoService } from '../../../services/carrinho/carrinho.service';
 import { Router } from '@angular/router';
 import { style } from '@angular/animations';
+import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -25,7 +26,7 @@ export class HomeComponent implements OnInit {
   public id: string = localStorage.getItem(LOCAL_STORAGE_KEYS.ID) ?? '';
 
 
-  constructor(private produtosService: ProdutosService, private carrinhoService: CarrinhoService, private router: Router){}
+  constructor(private produtosService: ProdutosService, private carrinhoService: CarrinhoService, private router: Router, private authservice: AuthService){}
 
   ngOnInit(): void {
     this.listaProdutos();
@@ -91,4 +92,16 @@ export class HomeComponent implements OnInit {
       }
       this.router.navigate(['/checkout'])
     }
-  }
+
+    public isLogged(): boolean {
+      let id = localStorage.getItem(LOCAL_STORAGE_KEYS.ID);
+      if (!id) {
+          return false;
+      }
+      return true;
+    }
+
+    public logout() {
+      this.authservice.logout()
+    }
+}

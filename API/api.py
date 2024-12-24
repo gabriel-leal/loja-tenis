@@ -220,7 +220,6 @@ async def createProduct(req: Request):
 #lista produtos
 @app.get('/products')
 async def getProducts(req: Request):
-    getToken(req)
     conn = create_connect(BD.banco)
     query = f"""
     select sku, nome, cor, qtd, preco, img 
