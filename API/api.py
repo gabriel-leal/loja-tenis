@@ -384,4 +384,3 @@ async def deleteCart(req: Request, id: str):
     execute_query(conn, 'commit')
     conn.close()
     return {"status": 200, "message": "cart successfully deleted"}
-    
